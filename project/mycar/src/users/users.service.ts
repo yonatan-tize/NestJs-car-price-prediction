@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm'; 
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,16 +11,19 @@ export class UsersService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>){}
 
-    async create(user: CreateUserDto){
-        const newUser = this.userRepository.create(user)
+    async create(email: string, password: string){
+        const newUser = this.userRepository.create({email, password})
 
         return this.userRepository.save(newUser)
     }
 
     async findOne(id: number){
+        if (id === null){
+            throw new BadRequestException('user not signed in')
+        }  
         return this.userRepository.findOne({where: {id}})
     }
-
+  
     async find(email: string){
         return this.userRepository.find({where: {email}})
     }

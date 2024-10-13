@@ -6,24 +6,50 @@ import{ Body,
         Patch, 
         Post, 
         Query,
-        UseInterceptors,
-        ClassSerializerInterceptor 
+        Session,
     } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { UserDto } from 'src/users/dto/user.dto';
+import { AuthService } from 'src/infrastructure/auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { User } from './user.entity';
 
 @Controller('auth')
+@Serialize(UserDto)
 export class UsersController {
-    constructor(private readonly usersServices: UsersService){}
+    constructor(
+        private readonly usersServices: UsersService,
+        private readonly authService: AuthService
+    ){}
 
-    @Post('/signup')
-    createUser(@Body() user: CreateUserDto){
-        return this.usersServices.create(user)
+    @Get('/whoami')
+    whoAmI(@CurrentUser() user: User) {
+        return user
     }
 
-    @UseInterceptors(SerializeInterceptor)
+    @Post('/logout')
+    logOut(@Session() session: any) {
+        session.userId = null;
+    }
+
+    @Post('/signup')
+    async createUser(@Body() createUserDto: CreateUserDto){
+        const user = await this.authService.signUp(createUserDto)
+        return user;
+    }
+ 
+    @Post('/signin')
+    async signIn(@Body() createUserDto: CreateUserDto, @Session() session: any){
+        const user = await this.authService.signIn(createUserDto.email, createUserDto.password)
+        // console.log(user)
+        session.userId = user.id
+        console.log(session.userId)
+        return user
+    }
+
     @Get('/:id')
     findUser(@Param('id') id: string){
        return this.usersServices.findOne(+id)
@@ -35,12 +61,14 @@ export class UsersController {
     }
 
     @Patch('/:id')
-    updateUser(@Param('id') id: string, @Body() user: UpdateUserDto){
-        this.usersServices.update(+id, user)
+    async updateUser(@Param('id') id: string, @Body() user: UpdateUserDto){
+        await this.usersServices.update(+id, user)
+        return { message: 'User updated successfully' };
     }
 
-    @Delete()
-    removeUser(@Param('id') id: string){
-        this.usersServices.remove(+id)
+    @Delete('/delete/:id')
+    async removeUser(@Param('id') id: string){
+        await this.usersServices.remove(+id)
+        return { message: 'User removed successfully' };
     }
 }
