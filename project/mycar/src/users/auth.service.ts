@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
-import { UsersService } from 'src/users/users.service'
+import { UsersService } from './users.service'
 import { randomBytes, scrypt as _scrypt } from 'crypto'
 import { promisify} from 'util'
 
@@ -18,7 +18,7 @@ export class AuthService{
 
         const hash = (await scrypt(newUser.password, salt, 32)) as Buffer
 
-        const hashedPassword = salt + '.' + hash.toString()
+        const hashedPassword = salt + '.' + hash.toString('hex')
 
         const user = await this.usersService.create(newUser.email, hashedPassword)
  
@@ -32,7 +32,7 @@ export class AuthService{
 
         const [salt, storedHash] = user.password.split('.')
 
-        const hash = ((await scrypt(password, salt, 32)) as Buffer).toString()
+        const hash = ((await scrypt(password, salt, 32)) as Buffer).toString('hex')
         if (hash != storedHash){
             throw new BadRequestException('wrong password')
         }
