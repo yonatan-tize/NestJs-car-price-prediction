@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm'; 
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +21,11 @@ export class UsersService {
         if (id === null){
             throw new BadRequestException('user not signed in')
         }  
-        return this.userRepository.findOne({where: {id}})
+        const user = this.userRepository.findOne({where: {id}})
+        if (!user){
+            throw new NotFoundException()
+        }
+        return user
     }
   
     async find(email: string){
@@ -29,7 +33,8 @@ export class UsersService {
     }
 
     async update(id : number, user: UpdateUserDto){
-        return this.userRepository.update(id, user)
+        await this.userRepository.update(id, user)
+        return this.userRepository.findOne({where: {id}})
     }
 
     async remove(id: number){

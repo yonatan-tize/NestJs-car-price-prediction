@@ -51,8 +51,6 @@ describe('AuthService', ()=>{
     });
 
     it('throw an error if email already exists for signup', async () =>{
-        // mockUsersService.find = () => 
-        //     Promise.resolve([{id: 1, email: "test@test.com", password: "123456"}])
 
         await service.signUp({email: 'test111@gmail.com', password: '123456'})
 

@@ -12,12 +12,15 @@ import{ Body,
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Serialize } from 'src/interceptors/serialize.interceptor';
-import { UserDto } from 'src/users/dto/user.dto';
-import { AuthService } from 'src/users/auth.service';
+// import { Serialize } from 'src/interceptors/serialize.interceptor'
+// import { UserDto } from 'src/users/dto/user.dto';
+// import { AuthService } from 'src/users/auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
+import { Serialize } from '../interceptors/serialize.interceptor';
+import { UserDto } from './dto/user.dto';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 @Serialize(UserDto)
@@ -47,9 +50,7 @@ export class UsersController {
     @Post('/signin')
     async signIn(@Body() createUserDto: CreateUserDto, @Session() session: any){
         const user = await this.authService.signIn(createUserDto.email, createUserDto.password)
-        // console.log(user)
         session.userId = user.id
-        console.log(session.userId)
         return user
     }
 
@@ -65,13 +66,12 @@ export class UsersController {
 
     @Patch('/:id')
     async updateUser(@Param('id') id: string, @Body() user: UpdateUserDto){
-        await this.usersServices.update(+id, user)
-        return { message: 'User updated successfully' };
+        return await this.usersServices.update(+id, user)
+         
     }
 
     @Delete('/delete/:id')
     async removeUser(@Param('id') id: string){
-        await this.usersServices.remove(+id)
-        return { message: 'User removed successfully' };
+        return await this.usersServices.remove(+id)
     }
 }
