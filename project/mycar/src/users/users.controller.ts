@@ -37,7 +37,7 @@ export class UsersController {
     }
 
     @Post('/logout')
-    logOut(@Session() session: any) {
+    logOut(@Session() session: any) { 
         session.userId = null;
     }
 
