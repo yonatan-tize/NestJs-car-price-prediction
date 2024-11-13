@@ -11,18 +11,18 @@ describe('AuthService', ()=>{
 
     beforeEach( async()=>{
         // Create a mock users service
-        const users: User[] = []
-        mockUsersService = {
-            find: (email: string) =>{ 
-                const filteredUsers = users.filter((user)=> user.email === email)
-                return Promise.resolve(filteredUsers)
-            },
-            create: (email: string, password: string) =>{
-                const user = { id: Math.floor(Math.random() * 99999), email, password }
-                users.push(user)
-                return Promise.resolve(user)
-            },
-        };
+        // const users: User[] = []
+        // mockUsersService = {
+        //     find: (email: string) =>{ 
+        //         const filteredUsers = users.filter((user)=> user.email === email)
+        //         return Promise.resolve(filteredUsers)
+        //     },
+        //     create: (email: string, password: string) =>{
+        //         const user = { id: Math.floor(Math.random() * 99999), email, password }
+        //         users.push(user)
+        //         return Promise.resolve(user)
+        //     },
+        // };
         
         const module = await Test.createTestingModule({
             providers: [
