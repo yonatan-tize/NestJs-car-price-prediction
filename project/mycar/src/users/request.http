@@ -1,0 +1,21 @@
+POST http://localhost:3000/auth/signup
+Content-Type: application/json
+
+{
+    "email":"asdfgh@test.com",
+    "password":"123456"
+}
+
+###
+
+POST http://localhost:3000/auth/signin
+Content-Type: application/json
+
+{
+  "email": "asdfgh@test.com",
+  "password": "123456"
+}
+
+###
+
+GET http://localhost:3000/auth/whoAmI
